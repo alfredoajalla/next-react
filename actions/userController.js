@@ -1,4 +1,5 @@
 "use server"
+import { getCollection } from "../lib/db";
 
 function isAlphaNumeric(x) {
     const regex = /^[a-zA-Z0-9]*$/;
@@ -23,7 +24,7 @@ export const register = async function(prevState, formData) {
     if (!isAlphaNumeric(ourUser.userName)) errors.userName = "User name only can contains letters and numbers."
     if (ourUser.userName === "") errors.userName = "You should provide a user name"
     if (ourUser.password.length < 3 ) errors.password = "User name should be at least 3 characters."
-    if (ourUser.password.length < 50 ) errors.password = "Password should be at least 8 characters."
+    if (ourUser.password.length > 50 ) errors.password = "Password should not exceed 50 characters."
     if (ourUser.password === "") errors.password = "You should provide a user name"
 
     if (errors.userName || errors.password) {
@@ -32,6 +33,9 @@ export const register = async function(prevState, formData) {
             success: false,      
         }
     };
+
+    const userCollection = await getCollection("users");
+    await userCollection.insertOne(ourUser);
     return {
         success: true,
     }
